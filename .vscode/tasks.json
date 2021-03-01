@@ -1,0 +1,11 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "C/C++: g++ 生成活动文件",
+            "command": "g++ -g -std=c++11 include/EPoll_op.cpp include/LitControl.cpp Useinclude/UControl.cpp main.cpp -o main -lpthread",
+          
+        }
+    ],
+    "version": "2.0.0"
+}
