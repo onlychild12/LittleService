@@ -1,1 +1,38 @@
-本框架是使用epoll队列和线程写成的c++框架
+1.本框架是使用epoll队列和线程写成的c++框架
+使用者只需要注意UControl中Initialize()和litControl函数即可使用此框架完成收发数据（以及图片数据和不大于2^32数据文件）。
+2.要注意的文件
+2.1 Useinclude中的protocal.h文件
+此文件中的port决定了监听的端口，使用者可在此文件中编写自己的通信协议
+2.3 Useinclude中的UControl.cpp文件
+此文件中的 Initialize()与litcontrol(char *,Storage s)函数；
+Intialize()函数中用于提前直接分配信号与对应的函数，当在Intialize()中分配信号和对应的函数后litcontrol将不再响应数据包
+litcontrol(char *,Storage s)函数用于获取未分配的数据包，其中char*代表的是信号，Storage s传递的是数据博爱
+3.如何使用Intialize()分配对应的信号与函数
+使用deptach(std::string,void(UControl::*function)(Storage))函数来分配信号与函数，即分配的函数只能是UControl的成员函数.如果为同一个字符串重复分配函数
+那么以最后一次为准。
+4.如何使用litcontrol(char *,Storage s)
+当信号未被分配时，所有的信号和数据包都会被litcontrol所接收
+4.1如何获取数据
+Storage封装了一个LitEncode函数，你只需要将需要转换格式的数据结构或对象的指针传进LitEncode便可通过参数获取你想要的格式，LitEncode返回的是bool数据
+返回true时表示转换成功，返回false表示转换失败，并且传入的指针不申请内存，无需释放
+注意不需要此处不需要你申请内存LitEncode会自动申请内存，但需要你手动释放内存。
+4.2如何发送数据
+4.2.1 发送自定义格式数据
+使用LitSend(char*,对象指针）发送你想发送的内容，其中char*传递的是信号
+使用LitSend(char*signal,char*content,int length)发送纯字符串，当你想发送纯文件时可能会用上,如果在堆上申请的内存注意销毁content和signal
+4.2.2客户端如何接收和发送数据
+本来要写一个客户端接收数据的类尚未完成，但客户端首先收到的是一个
+struct head{
+int length;
+char signal[200];
+};
+对象，其中signal会在服务器中解析为litcontrol的第一个参数，客户端应当以其为分配数据包的依据，length记录了接下来要接收的数据包的长度
+4.2.3广播
+使用broadcast(char*,对象指针)便可向所有连线的用户发送数据
+broadcast(char*signal,char*data,in length)广播流媒体
+4.2.4向特定的用户发送数据
+
+Broadcasttoperson(char*person,char*signal,对象指针）
+Broadcasttoperson(char*person,char*signal,char*data,in length)
+在使用这玩意之前你需要使用settitle设置当前用户的char*标记，否则函数不起效。
+
